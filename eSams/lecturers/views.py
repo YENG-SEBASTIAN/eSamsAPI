@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from lecturers.models import LecturerSemeterCourses, Invigilator
 from lecturers.serializers import AddCourseSerializer, InvigilatorSerializer
+from users.models import UserAccount
 from students.models import Attendance
 from reportlab.lib.pagesizes import letter, landscape
 from reportlab.pdfgen import canvas
@@ -170,10 +171,12 @@ def delete_invigilator_courses(request, pk):
 
 #attendance report view
 class AttendancePDFReport(APIView):
-    def get(self, request, course_code):
+    def get(self, request, course_code, course_name):
         try:
+            user = request.user
+            invigilator = UserAccount.objects.get(id=user.id)
             # Fetch attendance data based on course_code
-            attendance_data = Attendance.objects.filter(courseCode=course_code)
+            attendance_data = Attendance.objects.filter(courseCode=course_code, courseName=course_name, invigilator=invigilator.fullName)
             
             # Create a PDF response
             response = FileResponse(self.generate_pdf(attendance_data, course_code), content_type='application/pdf')

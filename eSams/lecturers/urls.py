@@ -20,5 +20,5 @@ urlpatterns = [
     path('invigilatorGetCourse/', get_invigilator_courses, name="invigilatorGetCourse"),
     path('invigilatorDeleteCourse/', delete_invigilator_courses, name="invigilatorDeleteCourse"),
 
-    path('AttendancePDFReport/<str:course_code>/', AttendancePDFReport.as_view(), name='AttendancePDFReport'),
+    path('AttendancePDFReport/<str:course_code>/<str:course_name>/', AttendancePDFReport.as_view(), name='AttendancePDFReport'),
 ]

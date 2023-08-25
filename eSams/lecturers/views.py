@@ -1,9 +1,15 @@
-from django.shortcuts import render
+from django.shortcuts import render, HttpResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.views import APIView
 from lecturers.models import LecturerSemeterCourses, Invigilator
 from lecturers.serializers import AddCourseSerializer, InvigilatorSerializer
+from students.models import Attendance
+from reportlab.lib.pagesizes import letter, landscape
+from reportlab.pdfgen import canvas
+from django.http import FileResponse
+from django.utils import timezone
 
 
 # lecturer add semester courses view
@@ -158,3 +164,55 @@ def delete_invigilator_courses(request, pk):
         course.delete()
         return Response(status=status.HTTP_200_OK)
     return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+#attendance report view
+class AttendancePDFReport(APIView):
+    def get(self, request, course_code):
+        try:
+            # Fetch attendance data based on course_code
+            attendance_data = Attendance.objects.filter(courseCode=course_code)
+            
+            # Create a PDF response
+            response = FileResponse(self.generate_pdf(attendance_data, course_code), content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="{course_code}_attendance_report.pdf"'
+            return response
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+    def generate_pdf(self, attendance_data, course_code):
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'inline; filename="{course_code}_attendance_report.pdf"'
+        
+        # Create a PDF document
+        p = canvas.Canvas(response, pagesize=landscape(letter))
+        p.drawString(100, 750, f"Attendance Report for Course: {course_code}")
+        p.drawString(100, 730, "Generated on: " + timezone.now().strftime('%Y-%m-%d %H:%M:%S'))
+        
+        # Table Header
+        y_position = 700
+        headers = ['Student ID', 'Index Number', 'Course Code', 'Course Name', 'Attendance Time', 'Invigilator', 'Present']
+        for header in headers:
+            p.drawString(headers.index(header) * 100, y_position, header)
+        
+        # Loop through attendance data and add to the PDF
+        y_position -= 20
+        for attendance in attendance_data:
+            data = [
+                attendance.studentID.username,
+                attendance.indexNumber,
+                attendance.courseCode,
+                attendance.courseName,
+                attendance.atendanceTime.strftime('%Y-%m-%d %H:%M:%S'),
+                attendance.invigilator,
+                'Yes' if attendance.isPresent else 'No'
+            ]
+            for item in data:
+                p.drawString(data.index(item) * 100, y_position, item)
+            y_position -= 20
+        
+        p.showPage()
+        p.save()
+        return response

@@ -3,7 +3,8 @@ from django.urls import path
 
 from lecturers.views import (lecturer_semester_courses, update_lecturer_semester_courses,
                              get_lecturer_semeter_courses, delete_course, invigilator_add_course, get_single_courses, 
-                             invigilator_update_course, get_invigilator_courses, delete_invigilator_courses)
+                             invigilator_update_course, get_invigilator_courses, delete_invigilator_courses,
+                             AttendancePDFReport)
 
 urlpatterns = [
     # lecturer semester CRUD endpoints
@@ -18,4 +19,6 @@ urlpatterns = [
     path('invigilatorUpdateCourse/', invigilator_update_course, name="invigilatorUpdateCourse"),
     path('invigilatorGetCourse/', get_invigilator_courses, name="invigilatorGetCourse"),
     path('invigilatorDeleteCourse/', delete_invigilator_courses, name="invigilatorDeleteCourse"),
+
+    path('AttendancePDFReport/<str:course_code>/', AttendancePDFReport.as_view(), name='AttendancePDFReport'),
 ]

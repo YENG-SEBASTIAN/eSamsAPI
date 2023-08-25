@@ -87,14 +87,6 @@ def delete_course(request, pk):
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-# mark attendance view
-@api_view(["POST"])
-def mark_attendance(request):
-    try:
-        student = ProfileInfo.objects.get(id='')
-    except:
-        pass
-
 
 # get student attendance view
 @api_view(["GET"])

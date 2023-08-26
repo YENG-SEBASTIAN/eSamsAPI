@@ -15,7 +15,7 @@ from io import BytesIO
 from reportlab.lib import colors
 from reportlab.platypus import (SimpleDocTemplate, Table, TableStyle, 
                                 Image, Preformatted, Spacer, Paragraph )
-from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 import requests
 
 # lecturer add semester courses view
@@ -177,7 +177,7 @@ class GeneratePDFView(APIView):
     def get(self, request, course_code, course_name):
         user = request.user
         invigilator = UserAccount.objects.get(id=1)
-        print(invigilator)
+        print(user)
         # Query the Attendance model to retrieve data
         queryset = Attendance.objects.filter(courseCode=course_code, courseName=course_name, invigilator=invigilator.fullName)
 
@@ -206,7 +206,7 @@ class GeneratePDFView(APIView):
 
         # Style the table
         table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.blue),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
@@ -218,9 +218,13 @@ class GeneratePDFView(APIView):
         elements = []
 
         # Add a title to the PDF
-        title_text = "<h1>Smart E-Attendance System Report</h1>"
-        title_style = getSampleStyleSheet()["Normal"]
-        title_style.alignment = 1  # Center alignment
+        title_style = ParagraphStyle(
+            "title_style",
+            fontSize=20,  # Increase font size
+            textColor=colors.blue,  # Set title color to blue
+            alignment=1  # Center alignment
+        )
+        title_text = "<h1><b>Smart E-Attendance System Report</b></h1>"
         title = Paragraph(title_text, title_style)
         elements.append(title)
         

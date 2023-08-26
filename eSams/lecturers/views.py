@@ -13,7 +13,10 @@ from django.http import FileResponse
 from django.utils import timezone
 from io import BytesIO
 from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.platypus import (SimpleDocTemplate, Table, TableStyle, 
+                                Image, Preformatted, Spacer, Paragraph )
+from reportlab.lib.styles import getSampleStyleSheet
+import requests
 
 # lecturer add semester courses view
 @api_view(["POST"])
@@ -169,11 +172,12 @@ def delete_invigilator_courses(request, pk):
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-
+#generate a pdf report
 class GeneratePDFView(APIView):
     def get(self, request, course_code, course_name):
         user = request.user
-        invigilator = UserAccount.objects.get(id=user.id)
+        invigilator = UserAccount.objects.get(id=1)
+        print(invigilator)
         # Query the Attendance model to retrieve data
         queryset = Attendance.objects.filter(courseCode=course_code, courseName=course_name, invigilator=invigilator.fullName)
 
@@ -212,6 +216,17 @@ class GeneratePDFView(APIView):
 
         # Build the PDF document
         elements = []
+
+        # Add a title to the PDF
+        title_text = "<h1>Smart E-Attendance System Report</h1>"
+        title_style = getSampleStyleSheet()["Normal"]
+        title_style.alignment = 1  # Center alignment
+        title = Paragraph(title_text, title_style)
+        elements.append(title)
+        
+        # Add space between title and table
+        elements.append(Spacer(1, 20))
+
         elements.append(table)
         doc.build(elements)
 

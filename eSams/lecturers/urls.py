@@ -4,7 +4,7 @@ from django.urls import path
 from lecturers.views import (lecturer_semester_courses, update_lecturer_semester_courses,
                              get_lecturer_semeter_courses, delete_course, invigilator_add_course, get_single_courses, 
                              invigilator_update_course, get_invigilator_courses, delete_invigilator_courses,
-                             AttendancePDFReport)
+                             GeneratePDFView)
 
 urlpatterns = [
     # lecturer semester CRUD endpoints
@@ -20,5 +20,5 @@ urlpatterns = [
     path('invigilatorGetCourse/', get_invigilator_courses, name="invigilatorGetCourse"),
     path('invigilatorDeleteCourse/', delete_invigilator_courses, name="invigilatorDeleteCourse"),
 
-    path('AttendancePDFReport/<str:course_code>/<str:course_name>/', AttendancePDFReport.as_view(), name='AttendancePDFReport'),
+    path('GeneratePDFView/<str:course_code>/<str:course_name>/', GeneratePDFView.as_view(), name='GeneratePDFView'),
 ]

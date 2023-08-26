@@ -11,7 +11,9 @@ from reportlab.lib.pagesizes import letter, landscape
 from reportlab.pdfgen import canvas
 from django.http import FileResponse
 from django.utils import timezone
-
+from io import BytesIO
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 
 # lecturer add semester courses view
 @api_view(["POST"])
@@ -168,54 +170,56 @@ def delete_invigilator_courses(request, pk):
 
 
 
-
-#attendance report view
-class AttendancePDFReport(APIView):
+class GeneratePDFView(APIView):
     def get(self, request, course_code, course_name):
-        try:
-            user = request.user
-            invigilator = UserAccount.objects.get(id=user.id)
-            # Fetch attendance data based on course_code
-            attendance_data = Attendance.objects.filter(courseCode=course_code, courseName=course_name, invigilator=invigilator.fullName)
-            
-            # Create a PDF response
-            response = FileResponse(self.generate_pdf(attendance_data, course_code), content_type='application/pdf')
-            response['Content-Disposition'] = f'attachment; filename="{course_code}_attendance_report.pdf"'
-            return response
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-    
-    def generate_pdf(self, attendance_data, course_code):
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = f'inline; filename="{course_code}_attendance_report.pdf"'
+        user = request.user
+        invigilator = UserAccount.objects.get(id=user.id)
+        # Query the Attendance model to retrieve data
+        queryset = Attendance.objects.filter(courseCode=course_code, courseName=course_name, invigilator=invigilator.fullName)
+
+        # Create a PDF buffer
+        buffer = BytesIO()
+
+        # Create the PDF object using the buffer
+        doc = SimpleDocTemplate(buffer, pagesize=landscape(letter))
+
+        # Create a table to hold the data
+        data = []
+        data.append(['Name', 'Index Number', 'Course Code', 'Course Name', 'Attendance Time', 'Invigilator', 'Status'])
         
-        # Create a PDF document
-        p = canvas.Canvas(response, pagesize=landscape(letter))
-        p.drawString(100, 750, f"Attendance Report for Course: {course_code}")
-        p.drawString(100, 730, "Generated on: " + timezone.now().strftime('%Y-%m-%d %H:%M:%S'))
-        
-        # Table Header
-        y_position = 700
-        headers = ['Student ID', 'Index Number', 'Course Code', 'Course Name', 'Attendance Time', 'Invigilator', 'Present']
-        for header in headers:
-            p.drawString(headers.index(header) * 100, y_position, header)
-        
-        # Loop through attendance data and add to the PDF
-        y_position -= 20
-        for attendance in attendance_data:
-            data = [
-                attendance.studentID.username,
+        for attendance in queryset:
+            data.append([
+                attendance.studentID.fullName,
                 attendance.indexNumber,
                 attendance.courseCode,
                 attendance.courseName,
                 attendance.atendanceTime.strftime('%Y-%m-%d %H:%M:%S'),
                 attendance.invigilator,
-                'Yes' if attendance.isPresent else 'No'
-            ]
-            for item in data:
-                p.drawString(data.index(item) * 100, y_position, item)
-            y_position -= 20
-        
-        p.showPage()
-        p.save()
+                'Present' if attendance.isPresent else 'Absent'
+            ])
+
+        table = Table(data)
+
+        # Style the table
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ]))
+
+        # Build the PDF document
+        elements = []
+        elements.append(table)
+        doc.build(elements)
+
+        # Rewind the buffer
+        buffer.seek(0)
+
+        # Create a response with the PDF file
+        response = HttpResponse(buffer, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{course_code} attendance.pdf"'
+
         return response

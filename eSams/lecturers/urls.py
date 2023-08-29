@@ -20,5 +20,5 @@ urlpatterns = [
     path('invigilatorGetCourse/', get_invigilator_courses, name="invigilatorGetCourse"),
     path('invigilatorDeleteCourse/', delete_invigilator_courses, name="invigilatorDeleteCourse"),
 
-    path('GeneratePDFView/<str:course_code>/<str:course_name>/', GeneratePDFView.as_view(), name='GeneratePDFView'),
+    path('GeneratePDFView/<str:course_code>/<str:course_name>/', GeneratePDFView, name='GeneratePDFView'),
 ]

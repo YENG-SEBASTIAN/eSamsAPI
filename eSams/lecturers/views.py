@@ -1,5 +1,6 @@
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import HttpResponse
 from rest_framework.decorators import api_view
+from django.contrib.auth.decorators import login_required
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
@@ -8,15 +9,11 @@ from lecturers.serializers import AddCourseSerializer, InvigilatorSerializer
 from users.models import UserAccount
 from students.models import Attendance
 from reportlab.lib.pagesizes import letter, landscape
-from reportlab.pdfgen import canvas
-from django.http import FileResponse
-from django.utils import timezone
 from io import BytesIO
 from reportlab.lib import colors
 from reportlab.platypus import (SimpleDocTemplate, Table, TableStyle, 
                                 Image, Preformatted, Spacer, Paragraph )
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-import requests
 
 # lecturer add semester courses view
 @api_view(["POST"])
@@ -173,8 +170,10 @@ def delete_invigilator_courses(request, pk):
 
 
 #generate a pdf report
-class GeneratePDFView(APIView):
-    def get(self, request, course_code, course_name):
+
+@api_view(['GET'])
+def GeneratePDFView(request, course_code, course_name):
+    if request.method == "GET":
         user = request.user
         invigilator = UserAccount.objects.get(id=1)
         print(user)

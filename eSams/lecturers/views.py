@@ -174,70 +174,75 @@ def delete_invigilator_courses(request, pk):
 @api_view(['GET'])
 def GeneratePDFView(request, course_code, course_name):
     if request.method == "GET":
-        user = request.user
-        invigilator = UserAccount.objects.get(id=1)
-        print(user)
-        # Query the Attendance model to retrieve data
-        queryset = Attendance.objects.filter(courseCode=course_code, courseName=course_name, invigilator=invigilator.fullName)
+        try:
+            user = request.user
+            invigilator = UserAccount.objects.get(id=user.id)
+            # Query the Attendance model to retrieve data
+            queryset = Attendance.objects.filter(courseCode=course_code, courseName=course_name, invigilator=invigilator.fullName)
 
-        # Create a PDF buffer
-        buffer = BytesIO()
+            # Create a PDF buffer
+            buffer = BytesIO()
 
-        # Create the PDF object using the buffer
-        doc = SimpleDocTemplate(buffer, pagesize=landscape(letter))
+            # Create the PDF object using the buffer
+            doc = SimpleDocTemplate(buffer, pagesize=landscape(letter))
 
-        # Create a table to hold the data
-        data = []
-        data.append(['Name', 'Index Number', 'Course Code', 'Course Name', 'Attendance Time', 'Invigilator', 'Status'])
-        
-        for attendance in queryset:
-            data.append([
-                attendance.studentID.fullName,
-                attendance.indexNumber,
-                attendance.courseCode,
-                attendance.courseName,
-                attendance.atendanceTime.strftime('%Y-%m-%d %H:%M:%S'),
-                attendance.invigilator,
-                'Present' if attendance.isPresent else 'Absent'
-            ])
 
-        table = Table(data)
+            # Create a table to hold the data
+            data = []
+            data.append(['Name', 'Index Number', 'Course Code', 'Course Name', 'Attendance Time', 'Invigilator', 'Status'])
+            
+            for attendance in queryset:
+                data.append([
+                    attendance.studentID.fullName,
+                    attendance.indexNumber,
+                    attendance.courseCode,
+                    attendance.courseName,
+                    attendance.atendanceTime.strftime('%Y-%m-%d %H:%M:%S'),
+                    attendance.invigilator,
+                    'Present' if attendance.isPresent else 'Absent'
+                ])
 
-        # Style the table
-        table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.blue),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ]))
+            table = Table(data)
 
-        # Build the PDF document
-        elements = []
+            # Style the table
+            table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.blue),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ]))
 
-        # Add a title to the PDF
-        title_style = ParagraphStyle(
-            "title_style",
-            fontSize=20,  # Increase font size
-            textColor=colors.blue,  # Set title color to blue
-            alignment=1  # Center alignment
-        )
-        title_text = "<h1><b>Smart E-Attendance System Report</b></h1>"
-        title = Paragraph(title_text, title_style)
-        elements.append(title)
-        
-        # Add space between title and table
-        elements.append(Spacer(1, 20))
+            # Build the PDF document
+            elements = []
 
-        elements.append(table)
-        doc.build(elements)
+            # Add a title to the PDF
+            title_style = ParagraphStyle(
+                "title_style",
+                fontSize=20,  # Increase font size
+                textColor=colors.blue,  # Set title color to blue
+                alignment=1  # Center alignment
+            )
+            title_text = "<h1><b>Smart E-Attendance System Report</b></h1>"
+            title = Paragraph(title_text, title_style)
+            elements.append(title)
+            
+            # Add space between title and table
+            elements.append(Spacer(1, 20))
 
-        # Rewind the buffer
-        buffer.seek(0)
+            elements.append(table)
+            doc.build(elements)
 
-        # Create a response with the PDF file
-        response = HttpResponse(buffer, content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="{course_code} attendance.pdf"'
+            # Rewind the buffer
+            buffer.seek(0)
 
-        return response
+            # Create a response with the PDF file
+            response = HttpResponse(buffer, content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="{course_code} attendance.pdf"'
+
+            return response
+        except UserAccount.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

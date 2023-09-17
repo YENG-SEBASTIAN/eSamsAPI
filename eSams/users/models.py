@@ -6,7 +6,7 @@ import json
 
 #customize user model
 class ManageUserAccount(BaseUserManager):
-    def create_user(self, username, fullName, email, level, role,  password=None, **extra_fields):
+    def create_user(self, username, fullName, email, role,  password=None, **extra_fields):
         if not username: #as index number
             raise ValueError('Your index number is required')
         if not fullName:
@@ -23,7 +23,6 @@ class ManageUserAccount(BaseUserManager):
             username = username, #as index number
             fullName = fullName,
             email = email,
-            level =level,
             role = role,
             **extra_fields
         )
@@ -33,7 +32,7 @@ class ManageUserAccount(BaseUserManager):
         return user
             
             
-    def create_superuser(self, username, fullName, email, level, role, password=None, **extra_fields):
+    def create_superuser(self, username, fullName, email, role, password=None, **extra_fields):
         
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
@@ -50,7 +49,6 @@ class ManageUserAccount(BaseUserManager):
             username = username, #as index number
             fullName = fullName,
             email = email,
-            level = level,
             role = role,
             password=password,
             **extra_fields
@@ -67,7 +65,6 @@ class UserAccount(AbstractUser):
     username = models.CharField(max_length=10, unique=True) #as index number
     fullName = models.CharField(max_length = 100)
     email = models.EmailField(max_length=100, unique=True)
-    level = models.IntegerField()
     role = models.CharField(max_length=100)
 
 
@@ -75,7 +72,7 @@ class UserAccount(AbstractUser):
     objects = ManageUserAccount()
     
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'fullName', 'level', 'role']
+    REQUIRED_FIELDS = ['username', 'fullName', 'role']
     
     
     def has_perm(self, perm, obj=None):

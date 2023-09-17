@@ -170,7 +170,6 @@ def delete_invigilator_courses(request, pk):
 
 
 #generate a pdf report
-
 @api_view(['GET'])
 def GeneratePDFView(request, course_code, course_name):
     if request.method == "GET":

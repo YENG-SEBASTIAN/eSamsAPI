@@ -127,7 +127,7 @@ def compare_faces_api(request):
             current_face_encoding = face_recognition.face_encodings(image_np, known_face_locations=face_locations)[0]
             
             matched_users = []
-            threshold = 0.4
+            threshold = 0.5
             
             for user_profile in ProfileInfo.objects.filter(user__role="Student"):
                 user_image_embedding_string = user_profile.embedding

@@ -9,7 +9,7 @@ from users.models import ProfileInfo
 class UserCreateSerializer(UserCreateSerializer):
     class Meta(UserCreateSerializer.Meta):
         model = User
-        fields = ['id', 'username', 'fullName', 'email', 'level',
+        fields = ['id', 'username', 'fullName', 'email',
                    'role', 'password']
         
 
@@ -17,4 +17,4 @@ class UserCreateSerializer(UserCreateSerializer):
 class ProfileInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProfileInfo
-        fields = ['id', 'user', 'programme', 'contact', 'about', 'picture', 'embedding']
+        fields = ['id', 'user', 'programme', 'level', 'contact', 'about', 'picture', 'embedding']

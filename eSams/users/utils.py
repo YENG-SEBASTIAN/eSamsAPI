@@ -1,19 +1,6 @@
-import cv2, face_recognition, numpy as np
-import requests
-import threading, datetime
-import requests
-from django.core.exceptions import PermissionDenied
-from users.models import ProfileInfo, UserAccount
-from rest_framework.response import Response
-from rest_framework import status
+from users.models import UserAccount
 from students.models import Attendance, SemesterCourses
 from lecturers.models import Invigilator
-from PIL import Image
-from io import BytesIO
-from django.shortcuts import get_object_or_404
-from django.conf import settings
-import os, json
-# from keras_facenet import FaceNet
 
 
 developmentURL = 'http://localhost:8000'

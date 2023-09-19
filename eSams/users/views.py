@@ -152,6 +152,8 @@ def compare_faces_api(request):
             if matched_users:
                 if not has_signed(request.user, user_profile.user):
                     sign = mark_attendance(request.user, user_profile.user)
+                    # Add a debugging print statement
+                    print(f"Attendance sign result: {sign}")
                     if sign is not None:
                         return Response({'message': f'attendance successfully signed'}, status=status.HTTP_200_OK)
                     return Response({'message': 'Could not Sign'},status=status.HTTP_404_NOT_FOUND)

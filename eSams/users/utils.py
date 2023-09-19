@@ -26,15 +26,39 @@ def mark_attendance(invigilator, student):
         return True
     return None
 
+# def has_signed(invigilator, student):
+#     try:
+#         invigilator_course = invigilator.invigilator_courses.all().latest("created_at")
+#         student_course = SemesterCourses.objects.filter(studentID=student, courseCode=invigilator_course.courseCode).first()
+#     except (UserAccount.DoesNotExist, Invigilator.DoesNotExist, SemesterCourses.DoesNotExist):
+#         return None
+    
+#     attendance = Attendance.objects.get(studentID=student, courseCode=student_course.courseCode, isPresent=True)
+#     print(attendance)
+#     if attendance:
+#         return True
+#     return False
+
+
+#Updated has_signed codes
 def has_signed(invigilator, student):
     try:
         invigilator_course = invigilator.invigilator_courses.all().latest("created_at")
         student_course = SemesterCourses.objects.filter(studentID=student, courseCode=invigilator_course.courseCode).first()
+        
+        if student_course:
+            attendance = Attendance.objects.get(studentID=student, courseCode=student_course.courseCode, isPresent=True)
+            # print("Attendance found:", attendance)
+            return True
+        else:
+            print("Student course not found")
+            return False
     except (UserAccount.DoesNotExist, Invigilator.DoesNotExist, SemesterCourses.DoesNotExist):
+        # print("Exception occurred: UserAccount, Invigilator, or SemesterCourses does not exist.")
         return None
-    
-    attendance = Attendance.objects.get(studentID=student, courseCode=student_course.courseCode, isPresent=True)
-    print(attendance)
-    if attendance:
-        return True
-    return False
+    except Attendance.DoesNotExist:
+        # print("Attendance not found")
+        return False
+    except Exception as e:
+        # print(f"An unexpected error occurred: {e}")
+        return None

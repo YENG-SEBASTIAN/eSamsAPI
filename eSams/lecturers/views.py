@@ -1,9 +1,7 @@
 from django.shortcuts import HttpResponse
 from rest_framework.decorators import api_view
-from django.contrib.auth.decorators import login_required
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.views import APIView
 from lecturers.models import LecturerSemeterCourses, Invigilator
 from lecturers.serializers import AddCourseSerializer, InvigilatorSerializer
 from users.models import UserAccount

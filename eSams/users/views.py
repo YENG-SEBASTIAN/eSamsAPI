@@ -6,7 +6,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from users.models import UserAccount, ProfileInfo
 from users.serializers import UserCreateSerializer, ProfileInfoSerializer
 from users.utils import mark_attendance, has_signed
-import cv2, face_recognition, numpy as np
+import face_recognition, numpy as np
 from PIL import Image
 from io import BytesIO
 import base64

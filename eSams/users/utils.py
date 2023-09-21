@@ -48,17 +48,17 @@ def has_signed(invigilator, student):
         
         if student_course:
             attendance = Attendance.objects.get(studentID=student, courseCode=student_course.courseCode, isPresent=True)
-            # print("Attendance found:", attendance)
+            print("Attendance found:", attendance)
             return True
         else:
             print("Student course not found")
             return False
     except (UserAccount.DoesNotExist, Invigilator.DoesNotExist, SemesterCourses.DoesNotExist):
-        # print("Exception occurred: UserAccount, Invigilator, or SemesterCourses does not exist.")
+        print("Exception occurred: UserAccount, Invigilator, or SemesterCourses does not exist.")
         return None
     except Attendance.DoesNotExist:
-        # print("Attendance not found")
+        print("Attendance not found")
         return False
     except Exception as e:
-        # print(f"An unexpected error occurred: {e}")
+        print(f"An unexpected error occurred: {e}")
         return None

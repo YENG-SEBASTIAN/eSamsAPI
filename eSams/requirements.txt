@@ -71,4 +71,3 @@ WeasyPrint
 webencodings
 Werkzeug
 wrapt
-dlib-binary

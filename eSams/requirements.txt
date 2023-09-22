@@ -19,7 +19,6 @@ django-templated-mail==1.1.1
 djangorestframework==3.14.0
 djangorestframework-simplejwt==5.2.2
 djoser
-dlib-binary
 face-recognition==1.3.0
 face-recognition-models==0.3.0
 flatbuffers==23.5.26
@@ -72,3 +71,4 @@ WeasyPrint
 webencodings
 Werkzeug
 wrapt
+dlib-binary

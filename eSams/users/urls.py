@@ -1,6 +1,7 @@
 from django.urls import path
 
-from users.views import (SetProfileInfo, update_profileInfo, get_profile, get_user, get_lecturers, compare_faces_api)
+from users.views import (SetProfileInfo, update_profileInfo, get_profile, 
+                         get_user, get_lecturers, compare_faces_api)
 
 urlpatterns = [
     path('SetProfileInfo/', SetProfileInfo.as_view(), name="SetProfileInfo"),

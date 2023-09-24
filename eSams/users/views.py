@@ -155,7 +155,7 @@ def compare_faces_api(request):
                     if sign is not None:
                         return Response({'message': f'Attendance successfully signed for {matched_users[0]}'}, status=status.HTTP_200_OK)
                     return Response({'message': 'Could not Sign'},status=status.HTTP_404_NOT_FOUND)
-                return Response({'message': f'Student with index {matched_users[0]} has being captured'}, status=status.HTTP_200_OK)
+                return Response({'message': f'Student with index {matched_users[0]} has been captured'}, status=status.HTTP_200_OK)
             return Response({'message': 'No matching user found!'})
                 
         except Exception as e:

@@ -40,6 +40,17 @@ def get_user(request):
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+#lecturer API
+@api_view(["GET"])
+def get_lecturers(request):
+    try:
+        lecturers = UserAccount.objects.filter(role="Lecturer")
+        serializer = UserCreateSerializer(lecturers)
+        return Response(serializer.data['fullName'])
+    except UserAccount.DoesNotExist:
+        return Response({"error": "Lecturer not found"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # create a user profile
 class SetProfileInfo(APIView):
